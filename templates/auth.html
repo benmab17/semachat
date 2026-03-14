@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Connexion | SemaChat</title>
+    <style>
+        :root {
+            --bg1: #07182f;
+            --bg2: #12325a;
+            --bg3: #4b1e6f;
+            --txt: #eaf6ff;
+            --muted: #9fc4e4;
+            --card-bg: rgba(10, 26, 48, 0.55);
+            --card-border: rgba(167, 212, 250, 0.24);
+            --cyan: #00e5ff;
+            --cyan-soft: rgba(0, 229, 255, 0.28);
+            --violet: #bb86fc;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            color: var(--txt);
+            background: linear-gradient(130deg, var(--bg1), var(--bg2), var(--bg3));
+            background-size: 280% 280%;
+            animation: gradientFlow 17s ease infinite;
+            overflow: hidden;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0 45%; }
+            50% { background-position: 100% 55%; }
+            100% { background-position: 0 45%; }
+        }
+
+        .screen {
+            min-height: 100%;
+            padding: 14px;
+            display: grid;
+            align-items: center;
+        }
+
+        .shell {
+            width: min(1240px, 100%);
+            margin: 0 auto;
+            border: 1px solid rgba(165, 211, 252, 0.2);
+            border-radius: 22px;
+            overflow: hidden;
+            background: rgba(7, 18, 35, 0.35);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 20px 54px rgba(2, 10, 20, 0.45);
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            opacity: 0;
+            transform: translateY(16px);
+            animation: rise 560ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes rise {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            position: relative;
+            padding: 38px 34px;
+            border-right: 1px solid rgba(165, 211, 252, 0.16);
+            background:
+                radial-gradient(circle at 25% 30%, rgba(85, 157, 255, 0.22), transparent 42%),
+                radial-gradient(circle at 78% 70%, rgba(187, 134, 252, 0.25), transparent 40%),
+                linear-gradient(145deg, rgba(8, 27, 53, 0.72), rgba(20, 35, 70, 0.52));
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(171, 214, 255, 0.35);
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #d7edff;
+            background: rgba(8, 29, 56, 0.5);
+        }
+
+        .badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00e5ff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.65);
+        }
+
+        .hero h1 {
+            margin: 18px 0 10px;
+            font-size: clamp(30px, 4vw, 48px);
+            line-height: 1.06;
+            letter-spacing: 0.2px;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 560px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .hero-grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .hero-card {
+            border: 1px solid rgba(166, 212, 252, 0.22);
+            border-radius: 12px;
+            padding: 10px;
+            background: rgba(10, 28, 53, 0.5);
+            font-size: 12px;
+            color: #d0e7ff;
+        }
+
+        .panel {
+            padding: 26px 20px 16px;
+            background: var(--card-bg);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.34), transparent 42%),
+                linear-gradient(135deg, #47d8ff, #347eff 70%, #1f59d4);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            color: #0b1f3c;
+            flex: 0 0 34px;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 19px;
+            line-height: 1.1;
+        }
+
+        .brand-sub {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .tabs {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            border: 1px solid rgba(169, 216, 255, 0.28);
+            border-radius: 999px;
+            background: rgba(10, 29, 53, 0.5);
+            color: #cde9ff;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15);
+        }
+
+        .form-panel {
+            margin-top: 12px;
+            display: none;
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        .form-panel.active {
+            display: block;
+            animation: panelFade 340ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes panelFade { to { opacity: 1; transform: translateY(0); } }
+
+        .field-wrap { margin-top: 9px; }
+
+        .field-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            padding: 10px 11px;
+            transition: border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .field-box:focus-within {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px var(--cyan-soft);
+        }
+
+        .icon {
+            color: #b8d8f5;
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+            flex: 0 0 16px;
+        }
+
+        .field {
+            width: 100%;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: #f4fbff;
+            font-size: 14px;
+        }
+
+        .field::placeholder { color: #87afd1; }
+
+        .field:-webkit-autofill,
+        .field:-webkit-autofill:hover,
+        .field:-webkit-autofill:focus,
+        .field:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0px 1000px #111b27 inset;
+            -webkit-text-fill-color: #ffffff;
+            caret-color: #ffffff;
+            transition: background-color 9999s ease-out 0s;
+            border: 0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 12px;
+            border: 0;
+            border-radius: 12px;
+            padding: 11px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #063049;
+            background: linear-gradient(120deg, #03dac6, #00e5ff);
+            cursor: pointer;
+        }
+
+        .google-btn {
+            width: 100%;
+            margin-top: 11px;
+            border-radius: 12px;
+            border: 1px solid rgba(222, 232, 245, 0.65);
+            background: rgba(255, 255, 255, 0.96);
+            color: #152434;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .google-btn svg { width: 20px; height: 20px; display: block; }
+
+        .messages {
+            margin-top: 10px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .msg {
+            border-radius: 9px;
+            border: 1px solid rgba(255, 142, 142, 0.45);
+            background: rgba(70, 20, 20, 0.5);
+            color: #ffd9d9;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hint { font-size: 11px; color: #9ec7ec; text-align: center; }
+
+        @media (max-width: 940px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+            .hero {
+                border-right: 0;
+                border-bottom: 1px solid rgba(165, 211, 252, 0.14);
+                padding: 18px 16px;
+            }
+            .hero h1 {
+                font-size: clamp(24px, 6vw, 34px);
+            }
+            .hero-grid {
+                grid-template-columns: 1fr 1fr;
+                margin-top: 12px;
+            }
+            .panel {
+                padding: 16px 14px 14px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .screen {
+                padding: 8px;
+            }
+            .shell {
+                border-radius: 16px;
+            }
+            .hero p {
+                font-size: 13px;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="screen">
+    <section class="shell">
+        <aside class="hero">
+            <div class="badge"><span class="dot"></span> Plateforme citoyenne RDC</div>
+            <h1>Signaler. Partager. Protéger.</h1>
+            <p>SemaChat : Ta voix, ton pays, ton futur. Connecte-toi pour publier, suivre la carte en direct et recevoir les notifications prioritaires.</p>
+            <div class="hero-grid">
+                <div class="hero-card">Signalements géolocalisés en temps réel</div>
+                <div class="hero-card">Hub Savoir collaboratif inter-universités</div>
+                <div class="hero-card">Système d'alliés, votes et réputation</div>
+                <div class="hero-card">PWA mobile installable iOS/Android</div>
+            </div>
+        </aside>
+
+        <section class="panel">
+            <div class="brand">
+                <div class="logo">S</div>
+                <div>
+                    <h2 class="brand-title">SemaChat</h2>
+                    <p class="brand-sub">Ta voix, ton pays, ton futur</p>
+                </div>
+            </div>
+
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="msg">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="tabs">
+                <button type="button" class="tab-btn active" data-tab="login-panel">Connexion</button>
+                <button type="button" class="tab-btn" data-tab="register-panel">Inscription</button>
+            </div>
+
+            <form id="login-panel" class="form-panel active" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="login">
+                <div class="field-wrap">
+                    <label class="field-box">
+                        <span class="icon">@</span>
+                        <input class="field" type="email" name="email" placeholder="Email" required autocomplete="email">
+                    </label>
+                </div>
+                <div class="field-wrap">
+                    <label class="field-box">
+                        <span class="icon">*</span>
+                        <input class="field" type="password" name="password" placeholder="Mot de passe" required autocomplete="current-password">
+                    </label>
+                </div>
+                <button type="submit" class="submit-btn">Se connecter</button>
+            </form>
+
+            <form id="register-panel" class="form-panel" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="register">
+                <div class="field-wrap">
+                    <label class="field-box">
+                        <span class="icon">@</span>
+                        <input class="field" type="email" name="email" placeholder="Email" required autocomplete="email">
+                    </label>
+                </div>
+                <div class="field-wrap">
+                    <label class="field-box">
+                        <span class="icon">*</span>
+                        <input class="field" type="password" name="password1" placeholder="Mot de passe" required autocomplete="new-password">
+                    </label>
+                </div>
+                <div class="field-wrap">
+                    <label class="field-box">
+                        <span class="icon">*</span>
+                        <input class="field" type="password" name="password2" placeholder="Confirmer le mot de passe" required autocomplete="new-password">
+                    </label>
+                </div>
+                <button type="submit" class="submit-btn">Créer mon compte</button>
+            </form>
+
+            <button class="google-btn" type="button" onclick="window.location.href='{{ google_login_url }}'">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.5 3.9-5.5 3.9-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.9 1.5l2.7-2.6C17 3.4 14.8 2.4 12 2.4A9.6 9.6 0 0 0 2.4 12 9.6 9.6 0 0 0 12 21.6c5.5 0 9.1-3.8 9.1-9.2 0-.6-.1-1.1-.2-1.6H12z"/>
+                    <path fill="#34A853" d="M2.4 12c0 3.8 2.2 7 5.4 8.6l3-2.5c-.8-.2-1.5-.6-2.1-1.1-1.1-.9-1.8-2.3-1.8-3.9s.7-3 1.8-3.9L5.8 6.7A9.5 9.5 0 0 0 2.4 12z"/>
+                    <path fill="#4A90E2" d="M12 21.6c2.8 0 5.2-.9 6.9-2.6l-3.2-2.6c-.9.6-2 1-3.7 1-1.4 0-2.7-.5-3.7-1.3l-3 2.5A9.6 9.6 0 0 0 12 21.6z"/>
+                    <path fill="#FBBC05" d="M5.3 5.4l3 2.5c1-.9 2.3-1.3 3.7-1.3 1.7 0 2.8.4 3.7 1l3.2-2.6A9.6 9.6 0 0 0 12 2.4a9.6 9.6 0 0 0-6.7 3z"/>
+                </svg>
+                Continuer avec Google
+            </button>
+
+            <div class="footer">
+                <span class="hint">Mobile portrait optimisé</span>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script>
+(() => {
+    const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+    const panels = Array.from(document.querySelectorAll(".form-panel"));
+    tabButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const target = btn.getAttribute("data-tab");
+            tabButtons.forEach((b) => b.classList.toggle("active", b === btn));
+            panels.forEach((p) => p.classList.toggle("active", p.id === target));
+        });
+    });
+})();
+</script>
+</body>
+</html>

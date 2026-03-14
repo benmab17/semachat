@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SemaControl | SemaChat</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #07111a;
+            --panel: rgba(7, 18, 30, 0.82);
+            --panel-strong: rgba(8, 24, 42, 0.9);
+            --border: rgba(143, 214, 255, 0.16);
+            --cyan: #00e5ff;
+            --gold: #f5be49;
+            --danger: #ff6767;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background:
+                radial-gradient(circle at top left, rgba(0, 229, 255, 0.08), transparent 26%),
+                radial-gradient(circle at top right, rgba(245, 190, 73, 0.08), transparent 24%),
+                var(--bg);
+            color: #eff7ff;
+            font-family: "Segoe UI", sans-serif;
+        }
+        .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px 16px 48px;
+        }
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .hero p {
+            margin: 8px 0 0;
+            color: rgba(221, 235, 246, 0.7);
+        }
+        .hero-link {
+            text-decoration: none;
+            color: #f4fbff;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: rgba(11, 27, 44, 0.74);
+            box-shadow: 0 0 18px rgba(0, 229, 255, 0.08);
+        }
+        .flash {
+            margin-bottom: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 105, 105, 0.24);
+            background: rgba(112, 18, 18, 0.22);
+            color: #ffdcdc;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .metric, .panel {
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 22px 44px rgba(0, 0, 0, 0.28);
+        }
+        .metric {
+            padding: 18px;
+        }
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(203, 227, 247, 0.64);
+        }
+        .metric-value {
+            margin-top: 10px;
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .metric.glow {
+            box-shadow: 0 0 28px rgba(0, 229, 255, 0.14), 0 22px 44px rgba(0, 0, 0, 0.28);
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            border: 1px solid rgba(245, 190, 73, 0.16);
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: rgba(12, 28, 44, 0.74);
+            color: #edf8ff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            border-color: rgba(245, 190, 73, 0.42);
+            box-shadow: 0 0 18px rgba(245, 190, 73, 0.14);
+            background: linear-gradient(120deg, rgba(0, 229, 255, 0.16), rgba(245, 190, 73, 0.16));
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .panel {
+            padding: 18px;
+        }
+        .panel h2 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+        .panel-note {
+            margin: 0 0 14px;
+            font-size: 12px;
+            color: rgba(203, 223, 241, 0.72);
+        }
+        .row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+        }
+        .row.priority {
+            border-color: rgba(255, 103, 103, 0.28);
+            box-shadow: 0 0 22px rgba(255, 103, 103, 0.14);
+        }
+        .row.intervention {
+            border-color: rgba(245, 190, 73, 0.24);
+            box-shadow: 0 0 18px rgba(245, 190, 73, 0.1);
+        }
+        .title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .meta {
+            margin-top: 4px;
+            font-size: 12px;
+            color: rgba(203, 223, 241, 0.72);
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 90, 90, 0.14);
+            border: 1px solid rgba(255, 90, 90, 0.22);
+            color: #ffbaba;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge.gold {
+            background: rgba(245, 190, 73, 0.14);
+            border-color: rgba(245, 190, 73, 0.24);
+            color: #ffe4af;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .btn {
+            border: 1px solid rgba(170, 214, 255, 0.16);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #eef7ff;
+            background: rgba(13, 30, 48, 0.78);
+        }
+        .btn.ban {
+            border-color: rgba(255, 92, 92, 0.28);
+            background: linear-gradient(180deg, rgba(148, 19, 32, 0.98), rgba(90, 9, 18, 0.98));
+        }
+        .btn.delete {
+            border-color: rgba(255, 144, 92, 0.24);
+            background: linear-gradient(180deg, rgba(122, 48, 14, 0.96), rgba(82, 24, 6, 0.96));
+            color: #ffe2d2;
+        }
+        .btn.primary {
+            border-color: rgba(0, 229, 255, 0.28);
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(245, 190, 73, 0.18));
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.12);
+        }
+        .form-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+        .field label {
+            font-size: 12px;
+            color: rgba(208, 227, 243, 0.78);
+        }
+        .field input,
+        .field textarea {
+            width: 100%;
+            border: 1px solid rgba(150, 213, 255, 0.16);
+            border-radius: 14px;
+            background: rgba(4, 15, 27, 0.56);
+            color: #f1fbff;
+            padding: 12px 14px;
+            outline: none;
+        }
+        .field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .recent-list {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .recent-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .recent-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+        .chart-card {
+            display: grid;
+            gap: 12px;
+        }
+        .chart-headline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chart-glow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffd6d6;
+            background: rgba(255, 103, 103, 0.14);
+            border: 1px solid rgba(255, 103, 103, 0.24);
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 8px;
+            align-items: end;
+            min-height: 180px;
+        }
+        .chart-col {
+            display: grid;
+            gap: 8px;
+            align-items: end;
+        }
+        .chart-bars {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+        }
+        .chart-bar {
+            width: 12px;
+            border-radius: 999px 999px 4px 4px;
+            min-height: 6px;
+            transition: height 0.35s ease, opacity 0.35s ease;
+        }
+        .chart-bar.yes {
+            background: linear-gradient(180deg, rgba(0, 229, 255, 0.92), rgba(0, 125, 255, 0.5));
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+        }
+        .chart-bar.no {
+            background: linear-gradient(180deg, rgba(255, 103, 103, 0.96), rgba(255, 143, 80, 0.55));
+            box-shadow: 0 0 12px rgba(255, 103, 103, 0.18);
+        }
+        .chart-label {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(203, 223, 241, 0.72);
+        }
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 12px;
+            color: rgba(226, 240, 251, 0.82);
+        }
+        .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .legend-dot.yes { background: #00e5ff; }
+        .legend-dot.no { background: #ff6767; }
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            .hero { flex-direction: column; }
+            .row { grid-template-columns: 1fr; }
+            .actions { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <div class="hero">
+        <div>
+            <h1>SemaControl</h1>
+            <p>Dark Ops temps réel pour la modération, les cercles locaux et les interventions ciblées.</p>
+        </div>
+        <a class="hero-link" href="/">Retour à la carte</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="metrics">
+        <div class="metric glow">
+            <div class="metric-label">Signalements totaux</div>
+            <div class="metric-value">{{ total_reports }}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Utilisateurs actifs</div>
+            <div class="metric-value">{{ active_users }}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">En attente de modération</div>
+            <div class="metric-value">{{ moderation_pending }}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Plaintes totales</div>
+            <div class="metric-value">{{ total_abuse_reports }}</div>
+        </div>
+    </section>
+
+    <div class="tabs">
+        <button class="tab-btn active" type="button" data-tab="moderation">Modération</button>
+        <button class="tab-btn" type="button" data-tab="risk">Utilisateurs à risque</button>
+        <button class="tab-btn" type="button" data-tab="interventions">Interventions</button>
+    </div>
+
+    <section class="tab-panel active" data-panel="moderation">
+        <div class="layout">
+            <div class="panel">
+                <h2>Signalements suspects</h2>
+                <p class="panel-note">À 3 plaintes, le contenu est masqué automatiquement de la carte publique.</p>
+                {% for signalement in suspicious_signalements %}
+                    <div class="row{% if signalement.hidden_by_moderation or signalement.abuse_count >= 3 %} priority{% endif %}">
+                        <div>
+                            <div class="title">{{ signalement.title }}</div>
+                            <div class="meta">{{ signalement.get_category_display }} • {{ signalement.created_at }} • auteur {{ signalement.reporter_hash|slice:":8" }}</div>
+                            <div class="badge">
+                                {{ signalement.abuse_count }} plainte{{ signalement.abuse_count|pluralize }}
+                                {% if signalement.hidden_by_moderation %}• masqué automatiquement{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="row">
+                        <div>
+                            <div class="title">Aucun signalement suspect</div>
+                            <div class="meta">La communauté n’a remonté aucun contenu pour le moment.</div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="recent-list">
+                    <h2>Plaintes récentes</h2>
+                    <p class="panel-note">Actualisation automatique toutes les 10 secondes.</p>
+                    {% for abuse in recent_abuse_reports %}
+                        <div class="recent-item">
+                            <div class="title">{{ abuse.signalement.title }}</div>
+                            <div class="meta">{{ abuse.target_profile.display_name|default:"SemaCitoyen" }} • {{ abuse.created_at }}</div>
+                        </div>
+                    {% empty %}
+                        <div class="meta">Aucune plainte récente.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="panel chart-card">
+                <div class="chart-headline">
+                    <div>
+                        <h2 style="margin:0;">Synthèse des réponses</h2>
+                        <p class="panel-note" style="margin:6px 0 0;">Courbe horaire pour repérer le basculement d'un quartier.</p>
+                    </div>
+                    {% if consensus_chart.available and consensus_chart.peak_negative_hour %}
+                        <div class="chart-glow">Pic négatif à {{ consensus_chart.peak_negative_hour }}</div>
+                    {% endif %}
+                </div>
+                {% if consensus_chart.available %}
+                    <div class="title">{{ consensus_chart.title }}</div>
+                    <div class="meta">{{ consensus_chart.question }}</div>
+                    <div id="consensus-chart" class="chart-grid" aria-label="Évolution des réponses par heure"></div>
+                    <div class="chart-legend">
+                        <span><span class="legend-dot yes"></span>Oui</span>
+                        <span><span class="legend-dot no"></span>Non</span>
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <div>
+                            <div class="title">Aucune série disponible</div>
+                            <div class="meta">Lance un sondage Admin pour afficher la dynamique des réponses ici.</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="tab-panel" data-panel="risk">
+        <div class="layout">
+            <div class="panel">
+                <h2>Utilisateurs à risque</h2>
+                <p class="panel-note">Comptes dont les messages ont été bloqués par le filtre anti-haine.</p>
+                {% for profile in risky_profiles %}
+                    <div class="row{% if profile.block_count >= 2 %} priority{% endif %}">
+                        <div>
+                            <div class="title">{{ profile.display_name|default:"SemaCitoyen" }}</div>
+                            <div class="meta">
+                                {% if profile.owner %}
+                                    {{ profile.owner.email|default:profile.owner.username }}
+                                {% else %}
+                                    Aucun compte lié
+                                {% endif %}
+                            </div>
+                            <div class="meta">Device {{ profile.device_hash|slice:":8" }} • Dernier blocage {{ profile.latest_block_at }}</div>
+                            <div class="badge">{{ profile.block_count }} message{{ profile.block_count|pluralize }} bloqué{{ profile.block_count|pluralize }}</div>
+                        </div>
+                        <div class="actions">
+                            {% if profile.owner and not profile.owner.is_superuser %}
+                                <form method="post" action="{% url 'moderation-ban-user' profile.owner_id %}">
+                                    {% csrf_token %}
+                                    <button class="btn ban" type="submit" {% if not profile.owner.is_active %}disabled{% endif %}>
+                                        {% if profile.owner.is_active %}Bannir{% else %}Déjà banni{% endif %}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn ban" type="button" disabled>Non bannissable</button>
+                            {% endif %}
+                            <form method="post" action="{% url 'moderation-delete-all' profile.id %}">
+                                {% csrf_token %}
+                                <button class="btn delete" type="submit">Supprimer tout</button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="row">
+                        <div>
+                            <div class="title">Aucun utilisateur à risque</div>
+                            <div class="meta">Le filtre n’a bloqué aucun contenu récemment.</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="tab-panel" data-panel="interventions">
+        <div class="layout">
+            <div class="panel">
+                <h2>Interventions</h2>
+                <p class="panel-note">Envoie un message prioritaire qui s’affichera immédiatement sur tous les écrans du cercle ciblé.</p>
+                <form method="post" action="{% url 'admin-intervention-create' %}" class="form-grid">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="intervention-room-label">Libellé du cercle</label>
+                        <input id="intervention-room-label" name="target_room_label" placeholder="Ex: Cercle de Bandalungwa" required>
+                    </div>
+                    <div class="field">
+                        <label for="intervention-room-key">Clé du cercle</label>
+                        <input id="intervention-room-key" name="target_room_key" placeholder="Ex: circle--241--845" required>
+                    </div>
+                    <div class="field">
+                        <label for="intervention-province">Province</label>
+                        <input id="intervention-province" name="target_province_key" placeholder="Ex: KINSHASA">
+                    </div>
+                    <div class="field">
+                        <label for="intervention-lat">Latitude de focus</label>
+                        <input id="intervention-lat" name="lat" placeholder="-4.3289">
+                    </div>
+                    <div class="field">
+                        <label for="intervention-lng">Longitude de focus</label>
+                        <input id="intervention-lng" name="lng" placeholder="15.2706">
+                    </div>
+                    <div class="field">
+                        <label for="intervention-message">Message prioritaire</label>
+                        <textarea id="intervention-message" name="message" placeholder="Ex: Intervention SemaChat: évitez l’avenue ce soir, présence signalée." required></textarea>
+                    </div>
+                    <div>
+                        <button class="btn primary" type="submit">Envoyer l’intervention</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Interventions récentes</h2>
+                <p class="panel-note">Historique des messages ciblés déjà poussés en temps réel.</p>
+                {% for intervention in recent_interventions %}
+                    <div class="row intervention">
+                        <div>
+                            <div class="title">{{ intervention.target_room_label|default:"Cercle local" }}</div>
+                            <div class="meta">{{ intervention.message }}</div>
+                            <div class="badge gold">{{ intervention.created_at }} • {{ intervention.target_province_key|default:"Sans province" }}</div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="row">
+                        <div>
+                            <div class="title">Aucune intervention ciblée</div>
+                            <div class="meta">Les diffusions de quartier apparaîtront ici.</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+<script>
+    (function () {
+        const TAB_KEY = "semacontrol_active_tab";
+        const chartPayload = {{ consensus_chart_json|safe }};
+        const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
+        const tabPanels = Array.from(document.querySelectorAll("[data-panel]"));
+        const interventionsPanel = document.querySelector('[data-panel="interventions"]');
+        const chartRoot = document.getElementById("consensus-chart");
+
+        function renderConsensusChart() {
+            if (!chartRoot || !chartPayload || !Array.isArray(chartPayload.series)) return;
+            const maxValue = chartPayload.series.reduce((acc, row) => {
+                return Math.max(acc, Number(row.yes || 0), Number(row.no || 0), 1);
+            }, 1);
+            chartRoot.innerHTML = chartPayload.series.map((row) => {
+                const yesHeight = Math.max(6, Math.round((Number(row.yes || 0) / maxValue) * 140));
+                const noHeight = Math.max(6, Math.round((Number(row.no || 0) / maxValue) * 140));
+                return [
+                    '<div class="chart-col">',
+                    '<div class="chart-bars">',
+                    '<span class="chart-bar yes" style="height:' + yesHeight + 'px" title="' + Number(row.yes || 0) + ' Oui"></span>',
+                    '<span class="chart-bar no" style="height:' + noHeight + 'px" title="' + Number(row.no || 0) + ' Non"></span>',
+                    '</div>',
+                    '<div class="chart-label">' + String(row.label || "") + '</div>',
+                    '</div>'
+                ].join("");
+            }).join("");
+        }
+
+        function setActiveTab(target) {
+            const resolved = target || "moderation";
+            tabButtons.forEach((node) => node.classList.toggle("active", node.getAttribute("data-tab") === resolved));
+            tabPanels.forEach((panel) => {
+                panel.classList.toggle("active", panel.getAttribute("data-panel") === resolved);
+            });
+            try {
+                sessionStorage.setItem(TAB_KEY, resolved);
+            } catch (_e) {}
+        }
+
+        tabButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                setActiveTab(btn.getAttribute("data-tab"));
+            });
+        });
+
+        try {
+            const savedTab = sessionStorage.getItem(TAB_KEY) || "moderation";
+            setActiveTab(savedTab);
+        } catch (_e) {
+            setActiveTab("moderation");
+        }
+        renderConsensusChart();
+
+        function isEditingInterventionForm() {
+            if (!interventionsPanel || !interventionsPanel.classList.contains("active")) return false;
+            const active = document.activeElement;
+            if (!active || !interventionsPanel.contains(active)) return false;
+            const tag = String(active.tagName || "").toLowerCase();
+            return tag === "input" || tag === "textarea" || tag === "select";
+        }
+
+        window.setInterval(function () {
+            if (document.visibilityState !== "visible") return;
+            if (isEditingInterventionForm()) return;
+            window.location.reload();
+        }, 10000);
+    })();
+</script>
+</body>
+</html>

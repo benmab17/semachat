@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard | SemaChat</title>
+    <style>
+        :root {
+            color-scheme: dark;
+        }
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top, rgba(98, 220, 255, 0.08), transparent 36%), #07111d;
+            color: #eef7ff;
+            font-family: "Segoe UI", sans-serif;
+        }
+        .wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 28px 16px 48px;
+        }
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .hero p {
+            margin: 6px 0 0;
+            color: rgba(214, 234, 255, 0.76);
+        }
+        .ghost-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(164, 213, 255, 0.18);
+            background: rgba(11, 25, 43, 0.62);
+            color: #eef7ff;
+            text-decoration: none;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .metric,
+        .panel {
+            border: 1px solid rgba(176, 219, 255, 0.14);
+            background: rgba(8, 21, 38, 0.72);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 20px;
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+        }
+        .metric {
+            padding: 18px;
+        }
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(192, 224, 255, 0.68);
+        }
+        .metric-value {
+            margin-top: 10px;
+            font-size: 30px;
+            font-weight: 800;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+            gap: 16px;
+        }
+        .panel {
+            padding: 18px;
+        }
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+        .report-list {
+            display: grid;
+            gap: 12px;
+        }
+        .report-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .report-name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .report-meta,
+        .report-submeta {
+            margin-top: 4px;
+            font-size: 12px;
+            color: rgba(204, 226, 246, 0.74);
+        }
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 96, 96, 0.12);
+            color: #ffb6b6;
+            border: 1px solid rgba(255, 112, 112, 0.16);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .block-btn {
+            border: 1px solid rgba(255, 95, 95, 0.28);
+            background: linear-gradient(180deg, rgba(140, 20, 32, 0.95), rgba(90, 8, 18, 0.95));
+            color: #fff4f4;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 18px rgba(255, 72, 72, 0.18);
+        }
+        .block-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .recent-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .recent-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+        .recent-title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .recent-meta {
+            margin-top: 4px;
+            font-size: 12px;
+            color: rgba(208, 229, 248, 0.72);
+        }
+        .flash {
+            margin-bottom: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(255, 126, 126, 0.14);
+            border: 1px solid rgba(255, 126, 126, 0.2);
+            color: #ffd6d6;
+        }
+        @media (max-width: 860px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .report-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <div class="hero">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Modération des abus signalés sur SemaChat.</p>
+        </div>
+        <a class="ghost-link" href="/">Retour à la carte</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="metrics">
+        <div class="metric">
+            <div class="metric-label">Plaintes enregistrées</div>
+            <div class="metric-value">{{ total_abuse_reports }}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Profils signalés</div>
+            <div class="metric-value">{{ reported_profiles|length }}</div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div class="panel">
+            <h2>Utilisateurs les plus signalés</h2>
+            <div class="report-list">
+                {% for profile in reported_profiles %}
+                    <div class="report-row">
+                        <div>
+                            <div class="report-name">{{ profile.display_name|default:"SemaCitoyen" }}</div>
+                            <div class="report-meta">
+                                {% if profile.owner %}
+                                    {{ profile.owner.email|default:profile.owner.username }}
+                                {% else %}
+                                    Aucun compte lié
+                                {% endif %}
+                            </div>
+                            <div class="report-submeta">Device: {{ profile.device_hash|slice:":8" }} • Dernière plainte: {{ profile.latest_abuse_at }}</div>
+                            <div class="count-badge">{{ profile.abuse_count }} signalement{{ profile.abuse_count|pluralize }}</div>
+                        </div>
+                        <div>
+                            {% if profile.owner and profile.owner.is_active and not profile.owner.is_superuser %}
+                                <form method="post" action="{% url 'admin-block-user' profile.owner_id %}">
+                                    {% csrf_token %}
+                                    <button class="block-btn" type="submit">Bloquer</button>
+                                </form>
+                            {% elif profile.owner and not profile.owner.is_active %}
+                                <button class="block-btn" type="button" disabled>Déjà bloqué</button>
+                            {% else %}
+                                <button class="block-btn" type="button" disabled>Non bloquable</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="report-row">
+                        <div>
+                            <div class="report-name">Aucun abus signalé</div>
+                            <div class="report-meta">La modération est calme pour le moment.</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Plaintes récentes</h2>
+            {% for abuse in recent_abuse_reports %}
+                <div class="recent-item">
+                    <div class="recent-title">{{ abuse.signalement.title }}</div>
+                    <div class="recent-meta">{{ abuse.target_profile.display_name|default:"SemaCitoyen" }} • {{ abuse.created_at }}</div>
+                </div>
+            {% empty %}
+                <div class="recent-meta">Aucune plainte récente.</div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Command HQ</title>
+    <style>
+        body { margin: 0; font-family: "Segoe UI", sans-serif; background: #091b34; color: #e8f5ff; }
+        .wrap { max-width: 700px; margin: 28px auto; padding: 0 14px; }
+        .card { border: 1px solid rgba(164, 212, 255, 0.24); border-radius: 14px; padding: 16px; background: rgba(9, 26, 48, 0.85); }
+        textarea, select { width: 100%; margin-top: 10px; border-radius: 10px; border: 1px solid rgba(164, 212, 255, 0.26); background: rgba(10, 24, 45, 0.72); color: #e8f5ff; padding: 10px; }
+        button { margin-top: 12px; border: 0; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-weight: 700; color: #042b46; background: linear-gradient(120deg, #03dac6, #00e5ff); }
+        .msg { margin-top: 8px; font-size: 13px; color: #bfffd8; }
+        .warn { color: #ffd8b0; }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <section class="card">
+        <h2 style="margin:0 0 8px;">Command HQ</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <label for="msg">Message Push</label>
+            <textarea id="msg" name="message" maxlength="280" required placeholder="Message top-down..."></textarea>
+            <label for="prio">Priorité</label>
+            <select id="prio" name="priority">
+                <option value="URGENT">Urgent</option>
+                <option value="INFO">Info</option>
+            </select>
+            <button type="submit">Envoyer à tous</button>
+        </form>
+        {% if not webpush_ready %}
+            <div class="msg warn">WebPush non configuré (clés VAPID ou pywebpush manquants).</div>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Broadcast | SemaChat</title>
+    <style>
+        body { margin: 0; background: #0c1d36; color: #e6f4ff; font-family: "Segoe UI", sans-serif; }
+        .wrap { max-width: 1100px; margin: 32px auto; padding: 0 16px 42px; }
+        .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; }
+        .card {
+            background: rgba(10, 28, 52, 0.82);
+            border: 1px solid rgba(173, 216, 255, 0.24);
+            border-radius: 18px;
+            padding: 18px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 24px 40px rgba(0, 0, 0, 0.26);
+        }
+        .hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .hero h1 { margin: 0; font-size: 28px; }
+        .hero-link {
+            color: #edf8ff; text-decoration: none; border: 1px solid rgba(164, 214, 255, 0.16);
+            border-radius: 999px; padding: 10px 14px; background: rgba(10, 24, 40, 0.72);
+        }
+        textarea, select, input {
+            width: 100%; margin-top: 8px; padding: 11px 12px; border-radius: 12px;
+            border: 1px solid rgba(173, 216, 255, 0.25); background: rgba(8, 21, 40, 0.7); color: #eaf6ff;
+        }
+        label { display: block; margin-top: 10px; font-size: 13px; color: #b8d8fb; }
+        .btn {
+            margin-top: 12px; padding: 11px 15px; border: 0; border-radius: 12px;
+            background: linear-gradient(120deg, #03dac6, #00e5ff); color: #052a44; font-weight: 700; cursor: pointer;
+        }
+        .btn.secondary {
+            background: rgba(15, 37, 64, 0.85);
+            color: #dff4ff;
+            border: 1px solid rgba(0, 229, 255, 0.24);
+        }
+        .btn.mass {
+            background: linear-gradient(120deg, #ffd166, #ff9f1c);
+            color: #3c1d00;
+            box-shadow: 0 0 18px rgba(255, 191, 71, 0.2);
+        }
+        .msg { margin-top: 10px; color: #b9ffd4; font-size: 13px; }
+        .warn { color: #ffd7b3; }
+        .meta { margin-top: 12px; font-size: 12px; color: #9ecbfa; }
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .list { display: grid; gap: 12px; margin-top: 12px; }
+        .item {
+            border-radius: 16px;
+            border: 1px solid rgba(167, 213, 255, 0.14);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 14px;
+        }
+        .item-title { font-size: 15px; font-weight: 700; }
+        .item-meta { margin-top: 4px; font-size: 12px; color: #a9d2f3; }
+        .item-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 5px 10px;
+            border-radius: 999px; background: rgba(255, 191, 71, 0.12); border: 1px solid rgba(255, 191, 71, 0.2);
+            color: #ffe6ac; font-size: 12px; font-weight: 700;
+        }
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(2, 8, 18, 0.64); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 3000;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+            width: min(100%, 520px); border-radius: 20px; border: 1px solid rgba(255, 196, 78, 0.22);
+            background: rgba(8, 20, 36, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 18px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.36), 0 0 26px rgba(255, 191, 71, 0.12);
+        }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .close-btn {
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.06); color: #f3fbff; cursor: pointer;
+        }
+        @media (max-width: 920px) {
+            .grid { grid-template-columns: 1fr; }
+            .row-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <div class="hero">
+        <div>
+            <h1>Admin Broadcast</h1>
+            <div class="meta">Mégaphone SemaChat pour les push globaux et les alertes ciblées.</div>
+        </div>
+        <a class="hero-link" href="/">Retour à la carte</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="msg">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="grid">
+        <section class="card">
+            <h2 style="margin:0 0 8px;">Créer un broadcast</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="broadcast">
+                <label for="title">Titre de notification</label>
+                <input id="title" name="title" maxlength="140" placeholder="Ex: ALERTE SNEEL">
+
+                <label for="kind">Type</label>
+                <select id="kind" name="kind">
+                    <option value="ALERT">Alerte admin</option>
+                    <option value="SURVEY">Sondage</option>
+                </select>
+
+                <label for="msg">Message</label>
+                <textarea id="msg" name="message" maxlength="280" required placeholder="Message pour tous les utilisateurs..."></textarea>
+
+                <label for="question">Question du sondage</label>
+                <input id="question" name="question" maxlength="280" placeholder="Avez-vous de l'électricité ?">
+
+                <label for="target-area">Cible géographique</label>
+                <input id="target-area" list="target-area-list" placeholder="Lubumbashi, Goma, Commune de la Kenya...">
+                <datalist id="target-area-list">
+                    <option value="Kinshasa"></option>
+                    <option value="Lubumbashi"></option>
+                    <option value="Commune de la Kenya"></option>
+                    <option value="Commune de Kampemba"></option>
+                    <option value="Kolwezi"></option>
+                    <option value="Goma"></option>
+                    <option value="Commune de Goma"></option>
+                    <option value="Commune de Karisimbi"></option>
+                    <option value="Bukavu"></option>
+                    <option value="Commune d'Ibanda"></option>
+                    <option value="Mbuji-Mayi"></option>
+                    <option value="Kananga"></option>
+                    <option value="Kisangani"></option>
+                    <option value="Bunia"></option>
+                    <option value="Mbandaka"></option>
+                    <option value="Matadi"></option>
+                    <option value="Uvira"></option>
+                </datalist>
+                <div class="row-grid">
+                    <div>
+                        <label for="lat">Latitude du point</label>
+                        <input id="lat" name="lat" inputmode="decimal" placeholder="-4.325000">
+                    </div>
+                    <div>
+                        <label for="lng">Longitude du point</label>
+                        <input id="lng" name="lng" inputmode="decimal" placeholder="15.322000">
+                    </div>
+                </div>
+
+                <label for="prio">Priorité</label>
+                <select id="prio" name="priority">
+                    <option value="URGENT">Urgent</option>
+                    <option value="INFO">Info</option>
+                </select>
+
+                <button class="btn" type="submit">Envoyer</button>
+            </form>
+
+            <div class="meta">
+                WebPush prêt: {{ webpush_ready|yesno:"Oui,Non" }}<br>
+                Clé publique VAPID: {{ vapid_public_key|default:"(non configurée)" }}
+            </div>
+            {% if not webpush_ready %}
+                <div class="meta warn">Configure `WEBPUSH_VAPID_PUBLIC_KEY`, `WEBPUSH_VAPID_PRIVATE_KEY`, `WEBPUSH_CLAIMS_SUB` et installe `pywebpush`.</div>
+            {% endif %}
+            {% if latest %}
+                <div class="meta">Dernier: [{{ latest.priority }}|{{ latest.kind }}] {{ latest.title|default:"Sans titre" }} • {{ latest.message }} ({{ latest.created_at }})</div>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                <h2 style="margin:0;">Admin Broadcasts</h2>
+                <button class="btn mass" id="open-mass-modal-btn" type="button">Diffuser à tous les citoyens</button>
+            </div>
+            <div class="list">
+                {% for broadcast in recent_broadcasts %}
+                    <div class="item">
+                        <div class="item-title">{{ broadcast.title|default:"Sans titre" }}</div>
+                        <div class="item-meta">{{ broadcast.message }}</div>
+                        <div class="badge">{{ broadcast.get_priority_display }} • {{ broadcast.get_kind_display }} • {{ broadcast.created_at }}</div>
+                        <div class="item-actions">
+                            <button
+                                class="btn secondary mass-action-btn"
+                                type="button"
+                                data-title="{{ broadcast.title|default:'ALERTE SemaChat' }}"
+                                data-message="{{ broadcast.message }}"
+                            >
+                                Diffuser à tous les citoyens
+                            </button>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="item">
+                        <div class="item-title">Aucun broadcast</div>
+                        <div class="item-meta">Les diffusions récentes apparaîtront ici.</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+
+<div class="modal-backdrop" id="mass-modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mass-modal-title">
+        <div class="modal-head">
+            <div>
+                <h2 id="mass-modal-title" style="margin:0;">Diffusion de masse</h2>
+                <div class="meta" style="margin-top:4px;">Notification instantanée WebPush vers tous les citoyens abonnés.</div>
+            </div>
+            <button class="close-btn" id="close-mass-modal-btn" type="button" aria-label="Fermer">&times;</button>
+        </div>
+        <form method="post" style="margin-top:10px;">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="mass-push">
+            <label for="mass-title">Titre</label>
+            <input id="mass-title" name="title" maxlength="140" required placeholder="Ex: ALERTE SNEEL">
+            <label for="mass-message">Message</label>
+            <textarea id="mass-message" name="message" maxlength="280" required placeholder="Ex: Coupure générale à Limete pour 4h"></textarea>
+            <button class="btn mass" type="submit">Diffuser à tous les citoyens</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const AREAS = {
+            "Kinshasa": { lat: -4.325000, lng: 15.322000 },
+            "Lubumbashi": { lat: -11.664700, lng: 27.479400 },
+            "Commune de la Kenya": { lat: -11.690800, lng: 27.470500 },
+            "Commune de Kampemba": { lat: -11.637600, lng: 27.495800 },
+            "Kolwezi": { lat: -10.714800, lng: 25.472400 },
+            "Goma": { lat: -1.679200, lng: 29.222800 },
+            "Commune de Goma": { lat: -1.683500, lng: 29.233400 },
+            "Commune de Karisimbi": { lat: -1.646700, lng: 29.208800 },
+            "Bukavu": { lat: -2.508300, lng: 28.860800 },
+            "Commune d'Ibanda": { lat: -2.501900, lng: 28.874600 },
+            "Mbuji-Mayi": { lat: -6.150000, lng: 23.600000 },
+            "Kananga": { lat: -5.896200, lng: 22.417800 },
+            "Kisangani": { lat: 0.515300, lng: 25.191100 },
+            "Bunia": { lat: 1.559300, lng: 30.252200 },
+            "Mbandaka": { lat: 0.047700, lng: 18.267800 },
+            "Matadi": { lat: -5.816700, lng: 13.483300 },
+            "Uvira": { lat: -3.395300, lng: 29.141600 }
+        };
+        const targetInput = document.getElementById("target-area");
+        const latInput = document.getElementById("lat");
+        const lngInput = document.getElementById("lng");
+        const openBtn = document.getElementById("open-mass-modal-btn");
+        const closeBtn = document.getElementById("close-mass-modal-btn");
+        const backdrop = document.getElementById("mass-modal-backdrop");
+        const massTitle = document.getElementById("mass-title");
+        const massMessage = document.getElementById("mass-message");
+
+        if (targetInput && latInput && lngInput) {
+            targetInput.addEventListener("change", function () {
+                const area = AREAS[targetInput.value];
+                if (!area) return;
+                latInput.value = area.lat.toFixed(6);
+                lngInput.value = area.lng.toFixed(6);
+            });
+        }
+
+        function openModal(title, message) {
+            if (massTitle) massTitle.value = title || "";
+            if (massMessage) massMessage.value = message || "";
+            if (backdrop) backdrop.classList.add("open");
+        }
+
+        function closeModal() {
+            if (backdrop) backdrop.classList.remove("open");
+        }
+
+        if (openBtn) openBtn.addEventListener("click", function () { openModal("", ""); });
+        if (closeBtn) closeBtn.addEventListener("click", closeModal);
+        if (backdrop) {
+            backdrop.addEventListener("click", function (event) {
+                if (event.target === backdrop) closeModal();
+            });
+        }
+        document.querySelectorAll(".mass-action-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                openModal(btn.getAttribute("data-title") || "", btn.getAttribute("data-message") || "");
+            });
+        });
+    })();
+</script>
+</body>
+</html>

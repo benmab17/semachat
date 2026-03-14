@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Profil SemaChat</title>
+    <style>
+        body { margin: 0; background: #0b1c36; color: #e8f4ff; font-family: "Segoe UI", sans-serif; }
+        .wrap { max-width: 680px; margin: 32px auto; padding: 0 16px; }
+        .card { border: 1px solid rgba(169, 216, 255, 0.25); border-radius: 18px; background: rgba(13, 30, 54, 0.82); padding: 18px; backdrop-filter: blur(16px); }
+        .name { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+        .meta { color: #a6d2f7; font-size: 13px; margin-bottom: 12px; }
+        .btn { border-radius: 14px; padding: 12px 14px; font-weight: 700; cursor: pointer; border: 0; margin-top: 8px; width: 100%; min-height: 48px; }
+        .btn-edit { background: linear-gradient(120deg, #03dac6, #00e5ff); color: #042740; }
+        .btn-ally { background: rgba(13, 44, 24, 0.5); border: 1px solid #47ff9a; color: #b9ffd7; box-shadow: 0 0 14px rgba(71,255,154,0.25); }
+        .btn-follow { background: transparent; border: 1px solid #00e5ff; color: #9defff; }
+        .btn-follow.followed { background: linear-gradient(120deg, #03dac6, #00e5ff); color: #07344f; }
+        .btn-sema { background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(0, 229, 255, 0.38); color: #dbf8ff; box-shadow: 0 0 16px rgba(0, 229, 255, 0.18); text-align: center; text-decoration: none; display: block; }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <section class="card">
+        <div class="name">{{ profile.public_display_name }}</div>
+        <div class="meta">Niveau {{ profile.level }} • {{ profile.rank_title }} • {{ profile.points }} pts</div>
+
+        {% if is_self_profile %}
+            <button class="btn btn-edit" type="button">Modifier mon profil</button>
+        {% else %}
+            <button id="ally-btn" class="btn btn-ally" type="button">Ajouter en Allié</button>
+            <button id="follow-btn" class="btn btn-follow" type="button">Suivre</button>
+            <a class="btn btn-sema" href="/?chat_with={{ profile.device_hash|urlencode }}">Sema</a>
+        {% endif %}
+    </section>
+</main>
+
+{% if not is_self_profile %}
+<script>
+(() => {
+    function getCookie(name) {
+        const item = document.cookie.split(";").map((x) => x.trim()).find((x) => x.startsWith(name + "="));
+        return item ? decodeURIComponent(item.split("=")[1]) : null;
+    }
+    function getDeviceId() {
+        const key = "kolona_device_id";
+        let value = localStorage.getItem(key);
+        if (!value) {
+            value = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : "device-" + Date.now();
+            localStorage.setItem(key, value);
+        }
+        return value;
+    }
+
+    const allyBtn = document.getElementById("ally-btn");
+    const followBtn = document.getElementById("follow-btn");
+    const targetHash = "{{ profile.device_hash|escapejs }}";
+
+    if (allyBtn) {
+        allyBtn.addEventListener("click", async () => {
+            try {
+                const res = await fetch("/api/social/ally/request/", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") || "" },
+                    body: JSON.stringify({ actor_hash: getDeviceId(), target_hash: targetHash })
+                });
+                if (!res.ok) throw new Error("ally");
+                allyBtn.textContent = "Demande envoyée";
+                allyBtn.disabled = true;
+            } catch (_e) {}
+        });
+    }
+
+    if (followBtn) {
+        followBtn.addEventListener("click", async () => {
+            const previous = followBtn.textContent;
+            followBtn.textContent = "Suivi ✓";
+            followBtn.classList.add("followed");
+            try {
+                const res = await fetch("/api/social/follow/toggle/", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") || "" },
+                    body: JSON.stringify({ actor_hash: getDeviceId(), target_hash: targetHash })
+                });
+                if (!res.ok) throw new Error("follow");
+                const payload = await res.json();
+                if (!payload.following) {
+                    followBtn.textContent = "Suivre";
+                    followBtn.classList.remove("followed");
+                }
+            } catch (_e) {
+                followBtn.textContent = previous;
+                followBtn.classList.remove("followed");
+            }
+        });
+    }
+})();
+</script>
+{% endif %}
+</body>
+</html>

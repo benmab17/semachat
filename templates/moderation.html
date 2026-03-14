@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modération | SemaChat</title>
+    <style>
+        :root { color-scheme: dark; }
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top, rgba(255, 86, 86, 0.12), transparent 32%), #08111b;
+            color: #eef6ff;
+            font-family: "Segoe UI", sans-serif;
+        }
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 16px 48px;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .topbar h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .topbar p {
+            margin: 6px 0 0;
+            color: rgba(215, 228, 243, 0.74);
+        }
+        .back-link {
+            color: #e6f5ff;
+            text-decoration: none;
+            border: 1px solid rgba(164, 209, 255, 0.16);
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: rgba(10, 22, 36, 0.74);
+        }
+        .flash {
+            margin-bottom: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(255, 105, 105, 0.14);
+            border: 1px solid rgba(255, 105, 105, 0.22);
+            color: #ffd4d4;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .metric, .panel {
+            border-radius: 20px;
+            border: 1px solid rgba(179, 215, 255, 0.12);
+            background: rgba(8, 19, 32, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 22px 42px rgba(0, 0, 0, 0.22);
+        }
+        .metric {
+            padding: 18px;
+        }
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(198, 219, 241, 0.68);
+        }
+        .metric-value {
+            margin-top: 10px;
+            font-size: 30px;
+            font-weight: 800;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 16px;
+        }
+        .stack {
+            display: grid;
+            gap: 16px;
+        }
+        .panel {
+            padding: 18px;
+        }
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+        }
+        .row:last-child { margin-bottom: 0; }
+        .row.priority {
+            border-color: rgba(255, 88, 88, 0.26);
+            box-shadow: 0 0 20px rgba(255, 70, 70, 0.12);
+        }
+        .title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .meta {
+            margin-top: 4px;
+            font-size: 12px;
+            color: rgba(205, 223, 240, 0.72);
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 90, 90, 0.14);
+            border: 1px solid rgba(255, 90, 90, 0.22);
+            color: #ffb8b8;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .btn {
+            border: 1px solid rgba(166, 214, 255, 0.16);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #eef6ff;
+            background: rgba(11, 30, 49, 0.78);
+        }
+        .btn.warn {
+            border-color: rgba(255, 177, 60, 0.22);
+            background: rgba(120, 76, 8, 0.86);
+            color: #ffe7ba;
+        }
+        .btn.ban {
+            border-color: rgba(255, 92, 92, 0.28);
+            background: linear-gradient(180deg, rgba(143, 21, 32, 0.98), rgba(89, 10, 18, 0.98));
+            color: #fff2f2;
+            box-shadow: 0 0 18px rgba(255, 75, 75, 0.18);
+        }
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        @media (max-width: 920px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .row {
+                grid-template-columns: 1fr;
+            }
+            .actions {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <div class="topbar">
+        <div>
+            <h1>Modération temps réel</h1>
+            <p>Traitement des contenus abusifs et gestion des comptes signalés.</p>
+        </div>
+        <a class="back-link" href="/">Retour à la carte</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="metrics">
+        <div class="metric">
+            <div class="metric-label">Plaintes reçues</div>
+            <div class="metric-value">{{ total_abuse_reports }}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Signalements suspects</div>
+            <div class="metric-value">{{ suspicious_signalements|length }}</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Utilisateurs signalés</div>
+            <div class="metric-value">{{ reported_profiles|length }}</div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div class="stack">
+            <div class="panel">
+                <h2>Signalements suspects</h2>
+                {% for signalement in suspicious_signalements %}
+                    <div class="row{% if signalement.hidden_by_moderation or signalement.abuse_count >= 3 %} priority{% endif %}">
+                        <div>
+                            <div class="title">{{ signalement.title }}</div>
+                            <div class="meta">{{ signalement.get_category_display }} • {{ signalement.created_at }} • auteur {{ signalement.reporter_hash|slice:":8" }}</div>
+                            <div class="badge">
+                                {{ signalement.abuse_count }} signalement{{ signalement.abuse_count|pluralize }}
+                                {% if signalement.hidden_by_moderation %}• masqué automatiquement{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="row">
+                        <div>
+                            <div class="title">Aucun signalement suspect</div>
+                            <div class="meta">Rien à traiter pour le moment.</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="panel">
+                <h2>Plaintes récentes</h2>
+                {% for abuse in recent_abuse_reports %}
+                    <div class="row">
+                        <div>
+                            <div class="title">{{ abuse.signalement.title }}</div>
+                            <div class="meta">{{ abuse.target_profile.display_name|default:"SemaCitoyen" }} • {{ abuse.created_at }}</div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="row">
+                        <div>
+                            <div class="title">Aucune plainte récente</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Utilisateurs signalés</h2>
+            {% for profile in reported_profiles %}
+                <div class="row{% if profile.abuse_count >= 3 %} priority{% endif %}">
+                    <div>
+                        <div class="title">{{ profile.display_name|default:"SemaCitoyen" }}</div>
+                        <div class="meta">
+                            {% if profile.owner %}
+                                {{ profile.owner.email|default:profile.owner.username }}
+                            {% else %}
+                                Aucun compte lié
+                            {% endif %}
+                        </div>
+                        <div class="meta">Device {{ profile.device_hash|slice:":8" }} • Dernière plainte {{ profile.latest_abuse_at }}</div>
+                        <div class="badge">{{ profile.abuse_count }} signalement{{ profile.abuse_count|pluralize }}</div>
+                    </div>
+                    <div class="actions">
+                        <form method="post" action="{% url 'moderation-warn-user' profile.id %}">
+                            {% csrf_token %}
+                            <button class="btn warn" type="submit">Avertir</button>
+                        </form>
+                        {% if profile.owner and not profile.owner.is_superuser %}
+                            <form method="post" action="{% url 'moderation-ban-user' profile.owner_id %}">
+                                {% csrf_token %}
+                                <button class="btn ban" type="submit" {% if not profile.owner.is_active %}disabled{% endif %}>
+                                    {% if profile.owner.is_active %}Bannir{% else %}Déjà banni{% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <button class="btn ban" type="button" disabled>Non bannissable</button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="row">
+                    <div>
+                        <div class="title">Aucun utilisateur signalé</div>
+                        <div class="meta">Le tableau de modération est vide.</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+</body>
+</html>

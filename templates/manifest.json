@@ -1,0 +1,22 @@
+{
+  "name": "SemaChat",
+  "short_name": "Sema",
+  "description": "Plateforme citoyenne sécurisée de signalement, d'alertes locales et de discussion communautaire en RDC",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0b1426",
+  "theme_color": "#0f2240",
+  "categories": ["social", "news", "utilities"],
+  "icons": [
+    {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Nouvelle alerte", "short_name": "Alerte", "url": "/?open=report", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Chat local", "short_name": "Chat", "url": "/?open=chat", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]}
+  ]
+}
