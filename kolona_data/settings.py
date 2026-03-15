@@ -172,3 +172,32 @@ WEBPUSH_CLAIMS_SUB = (
 MESSAGE_ENCRYPTION_KEY = os.getenv("MESSAGE_ENCRYPTION_KEY", "")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- CONFIGURATION DE PRODUCTION (RAILWAY) ---
+
+# 1. Gestion des hôtes autorisés
+ALLOWED_HOSTS = [
+    "semachat-production.up.railway.app", 
+    "localhost", 
+    "127.0.0.1"
+]
+
+# 2. Confiance pour les formulaires (CSRF)
+CSRF_TRUSTED_ORIGINS = [
+    "https://semachat-production.up.railway.app",
+]
+
+# 3. Forcer le HTTPS derrière le proxy de Railway
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = os.getenv("DEBUG", "True").lower() not in ("1", "true")
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# 4. Correction spécifique pour Google OAuth2
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+
+# On s'assure que les clés utilisent bien tes variables Railway actuelles
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "")
+
+
