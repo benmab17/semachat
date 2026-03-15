@@ -173,6 +173,7 @@ MESSAGE_ENCRYPTION_KEY = os.getenv("MESSAGE_ENCRYPTION_KEY", "")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
 # --- CONFIGURATION DE PRODUCTION (RAILWAY) ---
 
 # 1. Gestion des hôtes autorisés
