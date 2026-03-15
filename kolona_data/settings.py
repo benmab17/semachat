@@ -28,6 +28,7 @@ else:
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
 DEBUG = os.getenv("DEBUG", "True").lower() in ("1", "true", "yes", "on")
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "*").split(",") if h.strip()]
+APP_URL = os.getenv("APP_URL", "").strip().rstrip("/")
 
 INSTALLED_APPS = [
     "daphne",
@@ -62,6 +63,13 @@ MIDDLEWARE = [
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = os.getenv("SOCIAL_AUTH_REDIRECT_IS_HTTPS", "True").lower() in ("1", "true", "yes", "on")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+_csrf_trusted = [v.strip() for v in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if v.strip()]
+if APP_URL and APP_URL.startswith("https://") and APP_URL not in _csrf_trusted:
+    _csrf_trusted.append(APP_URL)
+CSRF_TRUSTED_ORIGINS = _csrf_trusted
 
 ROOT_URLCONF = "kolona_data.urls"
 ASGI_APPLICATION = "kolona_data.asgi.application"
@@ -157,8 +165,14 @@ AUTHENTICATION_BACKENDS = [
 if SOCIAL_AUTH_ENABLED:
     AUTHENTICATION_BACKENDS.insert(0, "social_core.backends.google.GoogleOAuth2")
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "")
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
+    os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+    or os.getenv("GOOGLE_OAUTH_CLIENT_ID", "")
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
+    os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+    or os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "")
+)
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ["openid", "email", "profile"]
 
 # Accept both legacy WEBPUSH_* names and short VAPID_* names.
